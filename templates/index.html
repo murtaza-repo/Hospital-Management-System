@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/floating-labels.css') }}">
+{% endblock %}
+    
+{% block body %}
+    <form class="form-sign" action="{{ url_for('login') }}" method="POST">
+        <div class="text-center mb-2">
+            <img class="mb-4" src="{{ url_for('static', filename='img/titleIcon.png') }}" alt="The Broadcast" width="180" height="180">
+            <h1 class="h3 mb-3 font-weight-normal">Login</h1>
+        </div>
+        <div class="form-label-group">
+        <input type="text" name="userId" id="inputUserId" class="form-control" placeholder="User Id" required autofocus>
+        <label for="inputUserId">User Id</label>
+        </div>
+
+        <div class="form-label-group">
+        <input type="password" name="password" id="inputPassword" title="Password must be atleast 8 characters long and must include atleast one upper case letter, one lower case letter, one numeric digit, and one special symbol." 
+        class="form-control" placeholder="Password" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&amp;*()_+}{&quot;:;'?/&gt;.&lt;,]).{8,}$">
+        <label for="inputPassword">Password</label>
+        </div>
+        
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+    </form>
+{% endblock %}

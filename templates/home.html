@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+    
+{% block body %}
+    <div class="title mt-3">
+        <h3 style="display:inline-flex;">{{ user.dept }}</h3>
+        <h3 style="display:inline-flex; float: right;"><a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a></h3>
+        <hr>
+    </div>
+
+    {% if user.dept == 'Registration Desk' %}
+    <div class="row mb-3">
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body bg-success">
+                    <div class="rotate mt-3">
+                        <i class="fa fa-user-plus fa-4x"></i>
+                    </div>
+                    <h6 class="text-uppercase mt-4">Register Patient</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body bg-danger">
+                    <div class="rotate mt-3">
+                        <i class="fa fa-user fa-4x"></i>
+                    </div>
+                    <h6 class="text-uppercase mt-4">Manage Patient</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body bg-info">
+                    <div class="rotate mt-3">
+                        <i class="fa fa-eye fa-4x"></i>
+                    </div>
+                    <h6 class="text-uppercase mt-4">View Patients</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-warning h-100">
+                <div class="card-body">
+                    <div class="rotate mt-3">
+                        <i class="fa fa-sticky-note fa-4x"></i>
+                    </div>
+                    <h6 class="text-uppercase mt-4">Generate Bill</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
