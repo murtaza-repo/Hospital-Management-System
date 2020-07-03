@@ -11,42 +11,104 @@
     <div class="row mb-3">
         <div class="col-xl-3 col-sm-6 py-2 text-center">
             <div class="card bg-success text-white h-100">
-                <div class="card-body bg-success">
-                    <div class="rotate mt-3">
-                        <i class="fa fa-user-plus fa-4x"></i>
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-success">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-user-plus fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Register Patient</h6>
                     </div>
-                    <h6 class="text-uppercase mt-4">Register Patient</h6>
-                </div>
+                </a>
             </div>
         </div>
         <div class="col-xl-3 col-sm-6 py-2 text-center">
             <div class="card text-white bg-danger h-100">
-                <div class="card-body bg-danger">
-                    <div class="rotate mt-3">
-                        <i class="fa fa-user fa-4x"></i>
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-danger">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-user fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Manage Patient</h6>
                     </div>
-                    <h6 class="text-uppercase mt-4">Manage Patient</h6>
-                </div>
+                </a>
             </div>
         </div>
         <div class="col-xl-3 col-sm-6 py-2 text-center">
             <div class="card text-white bg-info h-100">
-                <div class="card-body bg-info">
-                    <div class="rotate mt-3">
-                        <i class="fa fa-eye fa-4x"></i>
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-info">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-eye fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">View Patients</h6>
                     </div>
-                    <h6 class="text-uppercase mt-4">View Patients</h6>
-                </div>
+                </a>
             </div>
         </div>
         <div class="col-xl-3 col-sm-6 py-2 text-center">
             <div class="card text-white bg-warning h-100">
-                <div class="card-body">
-                    <div class="rotate mt-3">
-                        <i class="fa fa-sticky-note fa-4x"></i>
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-sticky-note fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Generate Bill</h6>
                     </div>
-                    <h6 class="text-uppercase mt-4">Generate Bill</h6>
-                </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% elif user.dept == 'Pharmacy' %}
+    <div class="row mb-3 justify-content-center">
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-danger h-100">
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-danger">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-medkit fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Medicine issued</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-info h-100">
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-info">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-list fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Medicine Details</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% elif user.dept == 'Diagnostics' %}
+    <div class="row mb-3 justify-content-center">
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-danger h-100">
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-danger">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-line-chart fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Diagnosis Performed</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 py-2 text-center">
+            <div class="card text-white bg-info h-100">
+                <a href="#" style="color: white; text-decoration: none;">
+                    <div class="card-body bg-info">
+                        <div class="rotate mt-3">
+                            <i class="fa fa-list fa-4x"></i>
+                        </div>
+                        <h6 class="text-uppercase mt-4">Diagnosis Details</h6>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
