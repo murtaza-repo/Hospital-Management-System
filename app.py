@@ -34,14 +34,14 @@ class Patient(db.Model):
     name = db.Column(db.String(50), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     doj = db.Column(db.Date, nullable=False)
-    type_of_Bed = db.Column(db.String(30), nullable=False)
-    adress = db.Column(db.String(100), nullable=False)
+    type_of_bed = db.Column(db.String(30), nullable=False)
+    address = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(30), nullable=False)
     state = db.Column(db.String(30), nullable=False)
-    status = db.Column(db.String(30), nullable=False)
+    status = db.Column(db.String(30), default='Active', nullable=False)
 
-    medicines = db.relationship('Medicine', secondary='medicine_issued', backref='patient', lazy='dynamic')
-    diagnosis = db.relationship('Diagnostics', secondary='diagnosis_performed', backref='patient', lazy='dynamic')
+    # medicines = db.relationship("Medicine_Issued", back_populates="medicine")
+    diagnosis = db.relationship("Diagnostics", secondary="diagnosis_performed", backref="patient", lazy="dynamic")
 
     def __repr__(self):
         return '<Patient %r>' % self.name
@@ -52,16 +52,16 @@ class Medicine(db.Model):
     quantity_available = db.Column(db.Integer, nullable=False)
     rate_of_medicine = db.Column(db.Float, nullable=True)
 
-db.Table('medicine_issued',
-	db.Column('patient_Id',db.Integer, db.ForeignKey('patient.id')),
-	db.Column('medicine_Id', db.Integer, db.ForeignKey('medicine.id')),
-    db.Column('quantity_issued', db.Integer, nullable=False)
-	)
+    def __repr__(self):
+        return 'Medicine %r' % self.name
 
-# class Medicine_Issued(db.Model):
-#     patient_Id = db.Column(db.Integer, db.ForeignKey('patient.id'))
-#     medicine_Id = db.Column(db.Integer, db.ForeignKey('medicine.id'))
-#     quantity_issued = db.Column(db.Integer, nullable=False)
+class Medicine_Issued(db.Model):
+    patient_id = db.Column(db.Integer,db.ForeignKey('patient.id'), primary_key=True)
+    medicine_id = db.Column(db.Integer,db.ForeignKey('medicine.id'), primary_key=True)
+    quantity = db.Column(db.Integer, nullable=False)
+
+    patients = db.relationship("Patient", backref="medicine_issued")
+    medicines = db.relationship("Medicine", backref="medicine_issued")
 
 class Diagnostics(db.Model):
     test_Id = db.Column(db.Integer, primary_key=True)
@@ -72,10 +72,6 @@ db.Table('diagnosis_performed',
 	db.Column('patient_Id', db.Integer, db.ForeignKey('patient.id')),
 	db.Column('test_Id', db.Integer, db.ForeignKey('diagnostics.test_Id'))
 	)
-# class Diagnosis_Performed(db.Model):
-#     patient_Id = db.Column(db.Integer, db.ForeignKey('patient.id'))
-#     test_Id = db.Column(db.Integer, db.ForeignKey('Diagnostics.test_Id'))
-###########
 
 # App routes 
 @app.route('/')
@@ -130,6 +126,18 @@ def logout():
     session.pop('userId', None)
     # Redirect to login page
     return redirect(url_for('index'))
+
+
+@app.route('/registerPatient', methods=['GET','POST'])
+def registerPatient():
+    if 'loggedin' in session:
+        if request.method == 'POST' and 'ssnID' in request.form \
+        and 'name' in request.form and 'age' in request.form and \
+        'doj' in request.form and 'type_of_bed' in request.form and \
+        'address' in request.form and 'state' in request.form and 'city' in request.form:
+            ssnID = request.form['ssnID']
+        else:
+            return render_template('regPatient.html')
 
 ###########
 
