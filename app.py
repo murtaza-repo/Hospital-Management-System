@@ -34,12 +34,47 @@ class Patient(db.Model):
     name = db.Column(db.String(50), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     doj = db.Column(db.Date, nullable=False)
-    typeOfBed = db.Column(db.String(30), nullable=False)
+    type_of_Bed = db.Column(db.String(30), nullable=False)
     adress = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(30), nullable=False)
     state = db.Column(db.String(30), nullable=False)
     status = db.Column(db.String(30), nullable=False)
 
+    medicines = db.relationship('Medicine', secondary='medicine_issued', backref='patient', lazy='dynamic')
+    diagnosis = db.relationship('Diagnostics', secondary='diagnosis_performed', backref='patient', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Patient %r>' % self.name
+
+class Medicine(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    quantity_available = db.Column(db.Integer, nullable=False)
+    rate_of_medicine = db.Column(db.Float, nullable=True)
+
+db.Table('medicine_issued',
+	db.Column('patient_Id',db.Integer, db.ForeignKey('patient.id')),
+	db.Column('medicine_Id', db.Integer, db.ForeignKey('medicine.id')),
+    db.Column('quantity_issued', db.Integer, nullable=False)
+	)
+
+# class Medicine_Issued(db.Model):
+#     patient_Id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+#     medicine_Id = db.Column(db.Integer, db.ForeignKey('medicine.id'))
+#     quantity_issued = db.Column(db.Integer, nullable=False)
+
+class Diagnostics(db.Model):
+    test_Id = db.Column(db.Integer, primary_key=True)
+    test_name = db.Column(db.String(50), unique=True, nullable=False)
+    test_charges = db.Column(db.Float, nullable=False)
+
+db.Table('diagnosis_performed',
+	db.Column('patient_Id', db.Integer, db.ForeignKey('patient.id')),
+	db.Column('test_Id', db.Integer, db.ForeignKey('diagnostics.test_Id'))
+	)
+# class Diagnosis_Performed(db.Model):
+#     patient_Id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+#     test_Id = db.Column(db.Integer, db.ForeignKey('Diagnostics.test_Id'))
 ###########
 
 # App routes 
