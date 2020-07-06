@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/floating-labels.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ResponsiveTable.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="mb-2 mt-3 text-center">
+        <h1 class="h3 mb-3 font-weight-normal">Medicine Details</h1>
+        <hr>
+    </div>
+    <div class="title mt-3">
+        <h3 style="display:inline-flex;">
+            <form class="form-inline active-cyan-3 active-cyan-4">
+                <i class="fa fa-search text-primary" style="font-size: large;" aria-hidden="true"></i>
+                <input class="form-control form-control-sm ml-3 w-75" type="text" id="searchField" onkeyup="searchFunction()" title="Type in Medicine Name" placeholder="Search by name..." aria-label="Search">
+            </form>
+        </h3>
+        <a href="#" data-toggle="modal" data-target="#addMedicine" class="btn btn-primary btn-sm text-white" style="display:inline-flex; float: right;"><i class="fa fa-plus mt-1"></i>&nbsp; Medicine</a>
+    </div>
+
+    <table class="mt-2" id="medicineTable">
+        <thead>
+            <tr>
+                <th scope="col">Medicine Name</th>
+                <th scope="col">Quantity Available</th>
+                <th scope="col">Rate of Medicine(Rs.)</th>
+                <th scope="col">Update Medicine</th>
+                <th scope="col">Delete Medicine</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for medicine in all_medicines %}
+                <tr>
+                    <td data-label="Medicine Name">{{ medicine.name }}</td>
+                    <td data-label="Quantity Available">{{ medicine.quantity_available }}</td>
+                    <td data-label="Rate of Medicine(Rs.)">{{ medicine.rate_of_medicine }}</td>
+                    <td data-label="Update Medicine"><a href="#" data-toggle="modal" data-target="#update{{ medicine.id }}" class="btn btn-sm btn-primary text-white"><i class="fa fa-arrow-circle-up"></i></a></td>
+                    <td data-label="Delete Medicine"><a href="#" data-toggle="modal" data-target="#delete{{ medicine.id }}" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash-o"></i></a></td>
+                </tr>
+
+            <!--Update Modal -->
+            <div class="modal fade" id="update{{ medicine.id }}" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addModalLabel">Edit Medicine</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="/editMedicine/{{ medicine.id }}" method="POST">
+                            <div class="modalGroup">
+                                <div class="form-group">
+                                    <label for="inputMedicineName">Medicine Name</label>
+                                    <input type="text" name="name" id="inputMedicineName" class="form-control" value="{{ medicine.name }}" required autofocus>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputQuantity">Quantity Available</label>
+                                    <input type="number" min="0" name="quantity" id="inputQuantity" class="form-control" value="{{ medicine.quantity_available }}" required autofocus>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputRate">Rate of Medicine(Rs.)</label>
+                                    <input type="number" step="0.01" min="0" name="rate" id="inputRate" class="form-control" value="{{ medicine.rate_of_medicine }}" required autofocus>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Delete -->
+            <div class="modal fade" id="delete{{ medicine.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Delete Medicine</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this medicine?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                            <a href="/deleteMedicine/{{ medicine.id }}" type="button" class="btn btn-primary">Yes</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!--Add Modal -->
+    <div class="modal fade" id="addMedicine" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">Add Medicine</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form class="form-sign" action="{{ url_for('medicineDetails') }}" method="POST">
+                    <div class="form-group">
+                        <label for="inputMedicineName">Medicine Name</label>
+                        <input type="text" name="name" id="inputMedicineName" class="form-control" placeholder="Enter name of medicine" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputQuantity">Quantity Available</label>
+                        <input type="number" min="0" name="quantity" id="inputQuantity" class="form-control" placeholder="Enter quantity available" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRate">Rate of Medicine(Rs.)</label>
+                        <input type="number" name="rate" step="0.01" min="0" id="inputRate" class="form-control" placeholder="Enter rate per piece" required autofocus>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function searchFunction() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchField");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("medicineTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

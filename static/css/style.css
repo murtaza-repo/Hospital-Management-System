@@ -24,6 +24,13 @@ body {
 	flex-wrap: nowrap;
 }
 
+.modalGroup{
+  width: 100%;
+  max-width: 420px;
+  padding: 15px;
+  margin: auto;
+}
+
 @media screen and (max-width: 420px){
   .allpatients{
     font-size: 1.3em;

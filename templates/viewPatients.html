@@ -29,6 +29,8 @@
                 <th scope="col">State</th>
                 <th scope="col">City</th>
                 <th scope="col">Status</th>
+                <th scope="col">Update</th>
+                <th scope="col">Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -49,7 +51,106 @@
                             <span class="text-danger">{{ patient.status }}</span>
                         {% endif %}
                     </td>
+                    <td data-label="Update"><a href="#" data-toggle="modal" data-target="#update{{ patient.id }}" class="btn btn-sm btn-primary text-white"><i class="fa fa-arrow-circle-up"></i></a></td>
+                    <td data-label="Delete"><a href="#" data-toggle="modal" data-target="#delete{{ patient.id }}" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash-o"></i></a></td>
                 </tr>
+
+                <!--Edit Modal -->
+                <div class="modal fade" id="update{{ patient.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel">Edit Patient</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="/editPatient/{{ patient.id }}" method="POST">
+                                <div class="modalGroup">
+                                    <div class="form-group">
+                                        <label for="inputssnID">Patient SSN ID*</label>
+                                        <input type="text" name="ssnID" id="inputssnID" class="form-control" value="{{ patient.ssnID }}" required autofocus>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputssnID">Patient Name*</label>
+                                        <input type="text" name="name" id="inputName" class="form-control" value="{{ patient.name }}" required autofocus>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputAge">Patient Age*</label>
+                                        <input type="number" name="age" id="inputAge" class="form-control" value="{{ patient.age }}" required autofocus>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputDoj">Date of Admission*</label>
+                                        <input type="date" name="doj" id="inputDoj" class="form-control" value="{{ patient.doj }}" required autofocus>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputBed">Type of Bed*</label>
+                                        <select class="form-control" name="type_of_bed" id="inputBed" required autofocus>
+                                            {% if patient.type_of_bed == 'General' %}
+                                                <option value="{{ patient.type_of_bed }}">General Ward</option>
+                                                <option value="Semi">Semi sharing</option>
+                                                <option value="Single">Single Room</option>
+                                            {% elif patient.type_of_bed == 'Semi' %}
+                                                <option value="{{ patient.type_of_bed }}">Semi Sharing</option>
+                                                <option value="General">General Ward</option>
+                                                <option value="Single">Single Room</option>
+                                            {% else %}
+                                                <option value="{{ patient.type_of_bed }}">Single Room</option>
+                                                <option value="General">General Ward</option>
+                                                <option value="Semi">Semi sharing</option>
+                                            {% endif %}                                
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputAddress">Address*</label>
+                                        <textarea class="form-control" name="address" id="inputAddress" rows="2">{{ patient.address }}</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="stateId">State*</label>
+                                        <input class="form-control" type="hidden" name="country" id="countryId" value="IN" />
+                                        <select name="state" class="states order-alpha form-control" aria-describedby="stateHint" id="stateId">
+                                            <option value="{{ patient.state }}">Select State</option>
+                                        </select>
+                                        <small id="stateHint" class="form-text text-muted">**Do not select state if you don't wish to update</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cityId">City*</label>
+                                        <select name="city" class="cities order-alpha form-control" id="cityId">
+                                            <option value="{{ patient.city }}">Select City</option>
+                                        </select>
+                                        <small id="stateHint" class="form-text text-muted">**Do not select city if you don't wish to update</small>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Delete-->
+                <div class="modal fade" id="delete{{ patient.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Delete Patient</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this patient?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                <a href="/deletePatient/{{ patient.id }}" type="button" class="btn btn-primary">Yes</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
         </tbody>
     </table>

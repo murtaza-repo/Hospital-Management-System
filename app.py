@@ -79,15 +79,14 @@ def index():
     if 'loggedin' in session:
         return redirect(url_for('home'))
 
-    return render_template('index.html')
+    return render_template('index.html', index=True)
 
 @app.route('/home')
 def home():
     if 'loggedin' in session:
         id = session['userId']
         user = Users.query.get_or_404(id)
-        home = True
-        return render_template("home.html", user=user, home=home)
+        return render_template("home.html", user=user, home=True)
     else:
         return redirect(url_for('index'))
 
@@ -164,12 +163,12 @@ def managePatient():
             ssnID = request.form['ssnID']
             patient = Patient.query.filter(Patient.ssnID == ssnID).first()
             if patient:
-                return render_template('managePatient.html', patient=patient)
+                return render_template('mngPatient.html', patient=patient)
             else:
                 flash('Patient with that SSN ID not found!', category='warning')
                 return redirect(url_for('managePatient'))
         else:
-            return render_template('managePatient.html')
+            return render_template('mngPatient.html')
     else:
         flash('Please Sign-in first!', category='warning')
         return redirect(url_for('index'))
@@ -194,6 +193,9 @@ def editPatient(id):
             db.session.commit()
             flash('Patient update initiated successfully', category='info')
             return redirect(url_for('managePatient'))
+        else:
+            flash('Please check the entered data', category='warning')
+            return redirect(url_for('managePatient'))
     else:
         flash('Please Sign-in first!', category='warning')
         return redirect(url_for('index'))
@@ -215,6 +217,114 @@ def viewPatients():
     if 'loggedin' in session:
         all_patients = Patient.query.all()
         return render_template('viewPatients.html', all_patients=all_patients)
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/medicineDetails', methods=['GET','POST'])
+def medicineDetails():
+    if 'loggedin' in session:
+        all_medicines = Medicine.query.all()
+        
+        if request.method == 'POST' and 'name' in request.form \
+            and 'quantity' in request.form and 'rate' in request.form:
+
+            name = request.form['name']
+            quantity_available = request.form['quantity']
+            rate_of_medicine = request.form['rate']
+
+            med = Medicine(name=name, quantity_available = quantity_available, rate_of_medicine = rate_of_medicine)
+            db.session.add(med)
+            db.session.commit()
+            flash('Medicine added successfully', category='info')
+            return redirect(url_for('medicineDetails'))
+        else:
+            return render_template('medDetails.html', all_medicines=all_medicines)
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/editMedicine/<int:id>', methods=['POST'])
+def editMedicine(id):
+    if 'loggedin' in session:
+        if request.method == 'POST'and 'name' in request.form \
+            and 'quantity' in request.form and 'rate' in request.form:
+
+            med = Medicine.query.get_or_404(id)
+            med.name = request.form['name']
+            med.quantity_available = request.form['quantity']
+            med.rate_of_medicine = request.form['rate']
+            db.session.commit()
+            flash('Medicine update initiated successfully', category='info')
+            return redirect(url_for('medicineDetails'))
+        else:
+            flash('Please check the entered data', category='warning')
+            return redirect(url_for('medicineDetails'))
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/deleteMedicine/<int:id>')
+def deleteMedicine(id):
+    if 'loggedin' in session:
+        med = Medicine.query.get_or_404(id)
+        db.session.delete(med)
+        db.session.commit()
+        flash('Medicine deletion initiated successfully', category='info')
+        return redirect(url_for('medicineDetails'))
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/diagDetails', methods=['GET', 'POST'])
+def diagDetails():
+    if 'loggedin' in session:
+        all_diagnostics = Diagnostics.query.all()
+        
+        if request.method == 'POST' and 'name' in request.form \
+            and 'charge' in request.form:
+
+            test_name = request.form['name']
+            test_charges = request.form['charge']
+
+            diag = Diagnostics(test_name=test_name, test_charges=test_charges)
+            db.session.add(diag)
+            db.session.commit()
+            flash('Diagnosis added successfully', category='info')
+            return redirect(url_for('diagDetails'))
+        else:
+            return render_template('diagDetails.html', all_diagnostics=all_diagnostics)
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))    
+
+@app.route('/editDiagnosis/<int:testId>', methods=['POST'])
+def editDiagnosis(testId):
+    if 'loggedin' in session:
+        if request.method == 'POST'and 'name' in request.form \
+            and 'charge' in request.form:
+
+            diag = Diagnostics.query.get_or_404(testId)
+            diag.test_name = request.form['name']
+            diag.test_charges = request.form['charge']
+            db.session.commit()
+            flash('Diagnostics update initiated successfully', category='info')
+            return redirect(url_for('diagDetails'))
+        else:
+            flash('Please check the entered data', category='warning')
+            return redirect(url_for('diagDetails'))
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/deleteDiagnosis/<int:testId>')
+def deleteDiagnosis(testId):
+    if 'loggedin' in session:
+        diag = Diagnostics.query.get_or_404(testId)
+        db.session.delete(diag)
+        db.session.commit()
+        flash('Diagnostics deletion initiated successfully', category='info')
+        return redirect(url_for('diagDetails'))
     else:
         flash('Please Sign-in first!', category='warning')
         return redirect(url_for('index'))

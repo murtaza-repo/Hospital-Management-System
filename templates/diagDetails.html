@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/floating-labels.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ResponsiveTable.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="mb-2 mt-3 text-center">
+        <h1 class="h3 mb-3 font-weight-normal">Diagnostics Details</h1>
+        <hr>
+    </div>
+    <div class="title mt-3">
+        <h3 style="display:inline-flex;">
+            <form class="form-inline active-cyan-3 active-cyan-4">
+                <i class="fa fa-search text-primary" style="font-size: large;" aria-hidden="true"></i>
+                <input class="form-control form-control-sm ml-3 w-75" type="text" id="searchField" onkeyup="searchFunction()" title="Type in Diagnosis Name" placeholder="Search by name..." aria-label="Search">
+            </form>
+        </h3>
+        <a href="#" data-toggle="modal" data-target="#addDiagnosis" class="btn btn-primary btn-sm text-white" style="display:inline-flex; float: right;"><i class="fa fa-plus mt-1"></i>&nbsp; Diagnosis</a>
+    </div>
+
+    <table class="mt-2 mb-3" id="diagnosisTable">
+        <thead>
+            <tr>
+                <th scope="col">Diagnostics Test Name</th>
+                <th scope="col">Diagnostics Test Charge</th>
+                <th scope="col">Update Diagnostics Details</th>
+                <th scope="col">Delete Diagnostics Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for diagnosis in all_diagnostics %}
+                <tr>
+                    <td data-label="Diagnostics Test Name">{{ diagnosis.test_name }}</td>
+                    <td data-label="Diagnostics Test Charge">{{ diagnosis.test_charges }}</td>
+                    <td data-label="Update Diagnostics Details"><a href="#" data-toggle="modal" data-target="#update{{ diagnosis.test_Id }}" class="btn btn-sm btn-primary text-white"><i class="fa fa-arrow-circle-up"></i></a></td>
+                    <td data-label="Update Diagnostics Details"><a href="#" data-toggle="modal" data-target="#delete{{ diagnosis.test_Id }}" class="btn btn-sm btn-danger text-white"><i class="fa fa-trash-o"></i></a></td>
+                </tr>
+
+            <!--Update Modal -->
+            <div class="modal fade" id="update{{ diagnosis.test_Id }}" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addModalLabel">Edit Diagnosis</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="/editDiagnosis/{{ diagnosis.test_Id }}" method="POST">
+                            <div class="modalGroup">
+                                <div class="form-group">
+                                    <label for="inputDiagName">Diagnostics Test Name</label>
+                                    <input type="text" name="name" id="inputDiagName" class="form-control" value="{{ diagnosis.test_name }}" required autofocus>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputCharge">Diagnostics Test Charge</label>
+                                    <input type="number" min="1" name="charge" id="inputCharge" class="form-control" value="{{ diagnosis.test_charges }}" required autofocus>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Delete -->
+            <div class="modal fade" id="delete{{ diagnosis.test_Id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Delete Diagnosis</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this diagnostic test?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                            <a href="/deleteDiagnosis/{{ diagnosis.test_Id }}" type="button" class="btn btn-primary">Yes</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!--Add Modal -->
+    <div class="modal fade" id="addDiagnosis" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">Add Diagnosis</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form class="form-sign" action="{{ url_for('diagDetails') }}" method="POST">
+                    <div class="form-group">
+                        <label for="inputDiagName">Diagnostics Test Name</label>
+                        <input type="text" name="name" id="inputDiagName" class="form-control" placeholder="Enter name of diagnosis" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputCharge">Diagnostics Test Charge</label>
+                        <input type="number" min="1" name="charge" id="inputCharge" class="form-control" placeholder="Enter charge of diagnosis" required autofocus>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function searchFunction() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchField");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("diagnosisTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}
