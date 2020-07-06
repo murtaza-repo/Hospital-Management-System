@@ -6,10 +6,7 @@
 
 {% block body %}
     <div class="mb-2 mt-3 text-center">
-        <h1 class="h3 mb-3 font-weight-normal">
-            <a href="{{ url_for('home') }}"><i class="fa fa-arrow-left"></i></a>
-            &nbsp; 
-            Register Patient</h1>
+        <h1 class="h3 mb-3 font-weight-normal">Register Patient</h1>
         <hr>
     </div>
     <form class="data-form" action="{{ url_for('registerPatient') }}" method="POST">
@@ -32,7 +29,7 @@
         <div class="form-group">
             <label for="inputBed">Type of Bed*</label>
             <select class="form-control" name="type_of_bed" id="inputBed" required autofocus>
-                <option disabled selected>Select Type of Bed</option>
+                <option disabled selected value="">Select Type of Bed</option>
                 <option value="General">General Ward</option>
                 <option value="Semi">Semi sharing</option>
                 <option value="Single">Single Room</option>
@@ -45,13 +42,13 @@
         <div class="form-group">
             <label for="stateId">State*</label>
             <input class="form-control" type="hidden" name="country" id="countryId" value="IN" />
-            <select name="state" class="states order-alpha form-control" id="stateId">
+            <select name="state" class="states order-alpha form-control" id="stateId" required>
                 <option value="">Select State</option>
             </select>
         </div>
         <div class="form-group">
             <label for="cityId">City*</label>
-            <select name="city" class="cities order-alpha form-control" id="cityId">
+            <select name="city" class="cities order-alpha form-control" id="cityId" required>
                 <option value="">Select City</option>
             </select>
         </div>

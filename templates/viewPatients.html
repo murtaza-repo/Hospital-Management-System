@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/floating-labels.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ResponsiveTable.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="title mt-3">
+        <h3 class="allpatients" style="display:inline-flex;">All Patients</h3>
+        <h3 style="display:inline-flex; float: right;">
+            <form class="form-inline active-cyan-3 active-cyan-4">
+                <i class="fa fa-search text-primary" style="font-size: large;" aria-hidden="true"></i>
+                <input class="form-control form-control-sm ml-3 w-75" type="text" id="searchField" onkeyup="searchFunction()" title="Type in SSN ID" placeholder="Search by SSN ID" aria-label="Search">
+            </form>
+        </h3>
+        <hr>
+    </div>
+
+    <table class="mt-2" id="patientTable">
+        <thead>
+            <tr>
+                <th scope="col">Patient SSN ID</th>
+                <th scope="col">Patient Name</th>
+                <th scope="col">Patient Age</th>
+                <th scope="col">Date of Admission</th>
+                <th scope="col">Type of Bed</th>
+                <th scope="col">Address</th>
+                <th scope="col">State</th>
+                <th scope="col">City</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in all_patients %}
+                <tr>
+                    <td data-label="Patient SSN ID">{{ patient.ssnID }}</td>
+                    <td data-label="Patient Name">{{ patient.name }}</td>
+                    <td data-label="Patient Age">{{ patient.age }}</td>
+                    <td data-label="Date of Admission">{{ patient.doj }}</td>
+                    <td data-label="Type of Bed">{{ patient.type_of_bed }}</td>
+                    <td data-label="Address">{{ patient.address }}</td>
+                    <td data-label="State">{{ patient.state }}</td>
+                    <td data-label="City">{{ patient.city }}</td>
+                    <td data-label="Status">
+                        {% if patient.status == 'Active' %}
+                            <span class="text-success">{{ patient.status }}</span>
+                        {% else %}
+                            <span class="text-danger">{{ patient.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function searchFunction() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchField");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("patientTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

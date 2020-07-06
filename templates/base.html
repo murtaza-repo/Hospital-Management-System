@@ -16,7 +16,13 @@
 <body class="d-flex flex-column">
 
     <nav class="navbar navbar-expand-md navbar-dark bg-primary justify-content-center">
-        <a class="navbar-brand" href="/">Hospital Management System</a>
+      {% if not home %}
+        <h3 class="mt-2"><a href="{{ url_for('home') }}" style="color: white;"><i class="fa fa-arrow-left"></i></a></h3>
+        &nbsp; &nbsp;
+      {% endif %}
+        <a class="navbar-brand" href="/">
+          Hospital Management System
+        </a>
     </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

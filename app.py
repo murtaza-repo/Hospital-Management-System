@@ -3,7 +3,7 @@
 from flask import Flask, render_template, redirect, url_for,request, flash, session
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, date
 import logging
 
 ###########
@@ -86,7 +86,8 @@ def home():
     if 'loggedin' in session:
         id = session['userId']
         user = Users.query.get_or_404(id)
-        return render_template("home.html", user=user)
+        home = True
+        return render_template("home.html", user=user, home=home)
     else:
         return redirect(url_for('index'))
 
@@ -132,13 +133,91 @@ def logout():
 def registerPatient():
     if 'loggedin' in session:
         if request.method == 'POST' and 'ssnID' in request.form \
-        and 'name' in request.form and 'age' in request.form and \
-        'doj' in request.form and 'type_of_bed' in request.form and \
-        'address' in request.form and 'state' in request.form and 'city' in request.form:
+            and 'name' in request.form and 'age' in request.form and \
+            'doj' in request.form and 'type_of_bed' in request.form and \
+            'address' in request.form and 'state' in request.form and 'city' in request.form:
+            
             ssnID = request.form['ssnID']
+            name = request.form['name']
+            age = request.form['age']
+            doj = date.fromisoformat(request.form['doj'])
+            type_of_bed = request.form['type_of_bed']
+            address = request.form['address']
+            state = request.form['state']
+            city = request.form['city']
+
+            patient = Patient(ssnID=ssnID, name=name, age=age, doj=doj, type_of_bed=type_of_bed, address=address, state=state, city=city)
+            db.session.add(patient)
+            db.session.commit()
+            flash('Patient registration initiated successfully', category='info')
+            return redirect(url_for('home'))
         else:
             return render_template('regPatient.html')
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
 
+@app.route('/managePatient', methods=['GET', 'POST'])
+def managePatient():
+    if 'loggedin' in session:
+        if request.method == 'POST' and 'ssnID' in request.form:
+            ssnID = request.form['ssnID']
+            patient = Patient.query.filter(Patient.ssnID == ssnID).first()
+            if patient:
+                return render_template('managePatient.html', patient=patient)
+            else:
+                flash('Patient with that SSN ID not found!', category='warning')
+                return redirect(url_for('managePatient'))
+        else:
+            return render_template('managePatient.html')
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/editPatient/<int:id>', methods=['POST'])
+def editPatient(id):
+    if 'loggedin' in session:
+        if request.method == 'POST'and 'ssnID' in request.form \
+            and 'name' in request.form and 'age' in request.form and \
+            'doj' in request.form and 'type_of_bed' in request.form and \
+            'address' in request.form and 'state' in request.form and 'city' in request.form:
+
+            patient = Patient.query.get_or_404(id)
+            patient.ssnID = request.form['ssnID']
+            patient.name = request.form['name']
+            patient.age = request.form['age']
+            patient.doj = date.fromisoformat(request.form['doj'])
+            patient.type_of_bed = request.form['type_of_bed']
+            patient.address = request.form['address']
+            patient.state = request.form['state']
+            patient.city = request.form['city']
+            db.session.commit()
+            flash('Patient update initiated successfully', category='info')
+            return redirect(url_for('managePatient'))
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/deletePatient/<int:id>')
+def deletePatient(id):
+    if 'loggedin' in session:
+        patient = Patient.query.get_or_404(id)
+        db.session.delete(patient)
+        db.session.commit()
+        flash('Patient deletion initiated successfully', category='info')
+        return redirect(url_for('managePatient'))
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/viewPatients')
+def viewPatients():
+    if 'loggedin' in session:
+        all_patients = Patient.query.all()
+        return render_template('viewPatients.html', all_patients=all_patients)
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
 ###########
 
 
