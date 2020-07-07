@@ -221,6 +221,80 @@ def viewPatients():
         flash('Please Sign-in first!', category='warning')
         return redirect(url_for('index'))
 
+@app.route('/medicineIssued', methods=['GET', 'POST'])
+def medicineIssued():
+    if 'loggedin' in session:
+        all_medicines = Medicine.query.all()
+
+        if request.method == 'POST' and 'ssnID' in request.form:
+            ssnID = request.form['ssnID']
+            patient = Patient.query.filter(Patient.ssnID == ssnID).first()
+            if patient:
+                medIssued = Medicine_Issued.query.filter(Medicine_Issued.patient_id==patient.id).all()
+                medlist = list()
+                for medId in medIssued:
+                    med = Medicine.query.filter(Medicine.id==medId.medicine_id).first()
+                    medData = {
+                        'obj': med,
+                        'quantity': medId.quantity
+                    }
+                    medlist.append(medData)
+                return render_template('medIssued.html', patient=patient, all_medicines=all_medicines, medlist=medlist, medIssued=medIssued)
+            else:
+                flash('Patient with that SSN ID not found!', category='warning')
+                return redirect(url_for('medicineIssued'))
+        elif request.method == 'POST' and 'patientId' in request.form and 'medicineId' in request.form and 'quantity' in request.form:
+            patientId = request.form['patientId']
+            medicineId = request.form['medicineId']
+            quantity = request.form['quantity']
+
+            medIssued = Medicine_Issued.query.filter(Medicine_Issued.patient_id==patientId, Medicine_Issued.medicine_id == medicineId).first()
+            if medIssued:
+                flash('Medicine already issued! Update quantity if you want...', category="warning")
+                return redirect(url_for('medicineIssued'))
+            else:  
+                medIssue = Medicine_Issued(patient_id = patientId, medicine_id = medicineId, quantity = quantity)
+                db.session.add(medIssue)
+                db.session.commit()
+                flash('Medicine issued successfully', category = 'info')
+                return redirect(url_for('medicineIssued'))
+        else:
+            return render_template('medIssued.html')
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/updateQuant/<int:id>', methods=['POST'])
+def updateQuant(id):
+    if 'loggedin' in session:
+        if request.method == 'POST' and 'patientId' in request.form and 'quantity' in request.form:
+            patient_Id = request.form['patientId']
+            quantity = request.form['quantity']
+            
+            medIssued = Medicine_Issued.query.filter(Medicine_Issued.patient_id==patient_Id, Medicine_Issued.medicine_id == id).first()
+            medIssued.quantity = quantity
+            db.session.commit()
+            flash('Medicine quantity update initiated succesfully', category='info')
+            return redirect(url_for('medicineIssued'))
+        else:
+            flash('Please check the inputs!', category='warning')
+            return redirect(url_for('medicineIssued'))
+    else:
+       flash('Please Sign-in first!', category='warning')
+       return redirect(url_for('index')) 
+       
+@app.route('/removeMedicine/<int:pid>,<int:mid>')
+def removeMedicine(pid, mid):
+    if 'loggedin' in session:
+        med = Medicine_Issued.query.filter(Medicine_Issued.patient_id==pid,Medicine_Issued.medicine_id == mid).first()
+        db.session.delete(med)
+        db.session.commit()
+        flash('Medicine removal initiated successfully', category='info')
+        return redirect(url_for('medicineIssued'))
+    else:
+       flash('Please Sign-in first!', category='warning')
+       return redirect(url_for('index')) 
+
 @app.route('/medicineDetails', methods=['GET','POST'])
 def medicineDetails():
     if 'loggedin' in session:

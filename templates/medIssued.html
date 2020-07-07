@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+ 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/floating-labels.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ResponsiveTable.css') }}">
+{% endblock %}
+
+{% block body %}
+        <div class="mb-2 mt-3 text-center">
+            <h1 class="h3 mb-3 font-weight-normal">Medicine Issued Details</h1>
+            <hr>
+        </div>
+        <form class="data-form" action="{{ url_for('medicineIssued') }}" method="POST">
+            <div class="form-group row">
+                <div class="col-7">
+                    <input type="text" name="ssnID" class="form-control" id="inputSSNID" placeholder="Enter SSN ID">
+                </div>
+                <div class="col-5">
+                    <button type="submit" class="btn btn-primary mb-2">Get Patient</button>
+                </div>
+            </div>
+        </form>
+
+        {% if patient %}
+        <div class="card-deck mb-3">
+            <div class="card mt-2" style="width: auto; border-color: cornflowerblue; border-radius: 15px;">
+                <div class="card-body">
+                    <h4 class="card-title font-weight-bold" style="display: inline-flex; font-size: 20px; line-height: 2;">
+                        Patient Details</h4>
+                    <h4 style="display: inline-flex; float: right;">
+                        <!-- <a class="small btn btn-primary text-white" href="#" data-toggle="modal" data-target="#editModal"><i
+                                        class="fa fa-plus-circle"></i>&nbsp;
+                                    Issue Medicine</a> -->
+                    </h4>
+                    <hr style="border-color: cornflowerblue; margin: 0;">
+                    <div class="card-text">
+                        <form class="data-form">
+                            <div class="form-group row">
+                                <label for="inputssnID" class="col-sm-5 col-form-label font-weight-bold">Patient SSN ID:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputssnID"
+                                        value="{{ patient.ssnID }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputName" class="col-sm-5 col-form-label font-weight-bold">Patient Name:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputName"
+                                        value="{{ patient.name }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputAge" class="col-sm-5 col-form-label font-weight-bold">Patient Age:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputAge"
+                                        value="{{ patient.age }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputDOJ" class="col-sm-5 col-form-label font-weight-bold">Date of Joining:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputDOJ"
+                                        value="{{ patient.doj }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputBed" class="col-sm-5 col-form-label font-weight-bold">Type of Bed:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputBed"
+                                        value="{{ patient.type_of_bed }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputAddress" class="col-sm-5 col-form-label font-weight-bold">Address:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputAddress"
+                                        value="{{ patient.address }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputState" class="col-sm-5 col-form-label font-weight-bold">State:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputState"
+                                        value="{{ patient.state }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputCity" class="col-sm-5 col-form-label font-weight-bold">City:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" readonly class="form-control-plaintext" id="inputCity"
+                                        value="{{ patient.city }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputStatus" class="col-sm-5 col-form-label font-weight-bold">Status:</label>
+                                <div class="col-sm-7">
+                                    {% if patient.status == 'Active' %}
+                                    <input type="text" readonly class="form-control-plaintext text-success" id="inputStatus"
+                                        value="{{ patient.status }}">
+                                    {% else %}
+                                    <input type="text" readonly class="form-control-plaintext text-danger" id="inputStatus"
+                                        value="{{ patient.status }}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <hr style="border-color: cornflowerblue; margin: 0;">
+                </div>
+        
+                <div class="card-body mb-3">
+                    <h4 class="card-title font-weight-bold" style="display: inline-flex; font-size: 20px; line-height: 2;">
+                        Medicine Issued</h4>
+                    <h4 style="display: inline-flex; float: right;">
+                        <a class="small btn btn-primary text-white" href="#" data-toggle="modal" data-target="#issueModal"><i
+                                class="fa fa-plus-circle"></i>&nbsp;
+                            Issue</a>
+                    </h4>
+                    <hr style="border-color: cornflowerblue; margin: 0;">
+                    <table class="mt-2" id="medicineTable">
+                        <thead>
+                            {% if medIssued %}
+                            <tr>
+                                <th scope="col">Medicine Name</th>
+                                <th scope="col">Quantity Issued</th>
+                                <th scope="col">Update Quantity</th>
+                                <th scope="col">Remove</th>
+                            </tr>
+                            {% endif %}
+                        </thead>
+                        <tbody>
+                            {% if medIssued %}
+                                {% for med in medlist %}
+                                    <tr>
+                                        <td data-label="Medicine Name">{{ med.obj.name }}</td>
+                                        <td data-label="Quantity Issued">{{ med.quantity }}</td>
+                                        <td data-label="Update Quantity"><a href="#" data-toggle="modal" data-target="#update{{ med.obj.id }}"
+                                                style="font-size: x-large;"><i class="fa fa-plus-circle"></i></a></td>
+                                        <td data-label="Remove"><a href="#" data-toggle="modal" data-target="#delete{{ med.obj.id }}"
+                                                class="text-danger" style="font-size: x-large;"><i class="fa fa-minus-circle"></i></a>
+                                        </td>
+                                    </tr>
+
+                                    <!--update Modal -->
+                                    <div class="modal fade" id="update{{ med.obj.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editModalLabel">Update Quantity</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form action="/updateQuant/{{ med.obj.id }}" method="POST">
+                                                    <div class="modalGroup">
+                                                        <input name="patientId" value="{{ patient.id }}" hidden>
+                                                        <div class="form-group">
+                                                            <label for="inputName">Medicine Name</label>
+                                                            <input type="text" id="inputName" class="form-control" value="{{ med.obj.name }}" disabled>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="inputQuant">Quantity</label>
+                                                            <input type="number" min="1" name="quantity" id="inputQuant" class="form-control" value="{{ med.quantity }}" required autofocus>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Delete user -->
+                                    <div class="modal fade" id="delete{{ med.obj.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel">Remove Medicine</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to remove this medicine?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                                <a href="/removeMedicine/{{ patient.id }},{{ med.obj.id }}" type="button" class="btn btn-primary">Yes</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td class="text-center"> No medicine issued yet! </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!--Issue Modal -->
+        <div class="modal fade" id="issueModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Issue Medicine</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form class="form-sign" action="#" method="POST">
+                        <input name="patientId" value="{{ patient.id }}" hidden>
+                        <div class="form-group">
+                            <label for="inputMedName">Medicine Name</label>
+                            <select class="form-control" name="medicineId" id="inputMedName" required autofocus>
+                                <option value="" selected disabled>Select medicine</option>
+                                {% for medicine in all_medicines %}
+                                    {% if medicine.quantity_available %}
+                                    <option value="{{ medicine.id }}">{{ medicine.name }}</option>
+                                    {% else %}
+                                    <option value="" disabled>{{ medicine.name }} <small><i>(out of stock)</i></small></option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputQuantity">Quantity</label>
+                            <input type="number" min="1" name="quantity" id="inputQuantity" class="form-control" placeholder="Enter quantity" required autofocus>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %} 
+{% endblock %}
