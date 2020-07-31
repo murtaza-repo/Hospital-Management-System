@@ -41,7 +41,7 @@ class Patient(db.Model):
     status = db.Column(db.String(30), default='Active', nullable=False)
 
     # medicines = db.relationship("Medicine_Issued", back_populates="medicine")
-    diagnosis = db.relationship("Diagnostics", secondary="diagnosis_performed", backref="patient", lazy="dynamic")
+    # diagnosis = db.relationship("Diagnostics", secondary="diagnosis_performed", backref="patient", lazy="dynamic")
 
     def __repr__(self):
         return '<Patient %r>' % self.name
@@ -64,14 +64,19 @@ class Medicine_Issued(db.Model):
     medicines = db.relationship("Medicine", backref="medicine_issued")
 
 class Diagnostics(db.Model):
-    test_Id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     test_name = db.Column(db.String(50), unique=True, nullable=False)
     test_charges = db.Column(db.Float, nullable=False)
 
-db.Table('diagnosis_performed',
-	db.Column('patient_Id', db.Integer, db.ForeignKey('patient.id')),
-	db.Column('test_Id', db.Integer, db.ForeignKey('diagnostics.test_Id'))
-	)
+    def __repr__(self):
+        return 'Diagnosis %r' % self.test_name
+
+class DiagnosisPerformed(db.Model):
+    patient_id = db.Column(db.Integer,db.ForeignKey('patient.id'), primary_key=True)
+    test_id = db.Column(db.Integer,db.ForeignKey('diagnostics.id'), primary_key=True)
+    
+    patients = db.relationship("Patient", backref="diagnosis_performed")
+    diagnostics = db.relationship("Diagnostics", backref="diagnosis_performed")
 
 # App routes 
 @app.route('/')
@@ -165,7 +170,7 @@ def managePatient():
             if patient:
                 return render_template('mngPatient.html', patient=patient)
             else:
-                flash('Patient with that SSN ID not found!', category='warning')
+                flash('Patient with SSN ID not found!', category='warning')
                 return redirect(url_for('managePatient'))
         else:
             return render_template('mngPatient.html')
@@ -241,23 +246,37 @@ def medicineIssued():
                     medlist.append(medData)
                 return render_template('medIssued.html', patient=patient, all_medicines=all_medicines, medlist=medlist, medIssued=medIssued)
             else:
-                flash('Patient with that SSN ID not found!', category='warning')
+                flash('Patient with SSN ID not found!', category='warning')
                 return redirect(url_for('medicineIssued'))
         elif request.method == 'POST' and 'patientId' in request.form and 'medicineId' in request.form and 'quantity' in request.form:
             patientId = request.form['patientId']
             medicineId = request.form['medicineId']
-            quantity = request.form['quantity']
+            quantity = int(request.form['quantity'])
 
             medIssued = Medicine_Issued.query.filter(Medicine_Issued.patient_id==patientId, Medicine_Issued.medicine_id == medicineId).first()
+            medicine = Medicine.query.filter(Medicine.id == medicineId).first()
             if medIssued:
-                flash('Medicine already issued! Update quantity if you want...', category="warning")
-                return redirect(url_for('medicineIssued'))
-            else:  
-                medIssue = Medicine_Issued(patient_id = patientId, medicine_id = medicineId, quantity = quantity)
-                db.session.add(medIssue)
-                db.session.commit()
-                flash('Medicine issued successfully', category = 'info')
-                return redirect(url_for('medicineIssued'))
+                # flash('Medicine already issued! Update quantity if you want...', category="warning")
+                if quantity > medicine.quantity_available:
+                    flash(f'Requested quantity not available! Quantity Available: {medicine.quantity_available}', category = 'info')
+                    return redirect(url_for('medicineIssued'))
+                else:
+                    medIssued.quantity += quantity
+                    medicine.quantity_available -= quantity
+                    db.session.commit()
+                    flash('Medicine issued successfully', category = 'info')
+                    return redirect(url_for('medicineIssued'))
+            else: 
+                if quantity > medicine.quantity_available: 
+                    flash(f'Requested quantity not available! \n\n Quantity Available: {medicine.quantity_available}', category = 'info')
+                    return redirect(url_for('medicine_issued'))
+                else:
+                    medicine.quantity_available -= quantity
+                    medIssue = Medicine_Issued(patient_id = patientId, medicine_id = medicineId, quantity = quantity)
+                    db.session.add(medIssue)
+                    db.session.commit()
+                    flash('Medicine issued successfully', category = 'info')
+                    return redirect(url_for('medicineIssued'))
         else:
             return render_template('medIssued.html')
     else:
@@ -269,13 +288,22 @@ def updateQuant(id):
     if 'loggedin' in session:
         if request.method == 'POST' and 'patientId' in request.form and 'quantity' in request.form:
             patient_Id = request.form['patientId']
-            quantity = request.form['quantity']
+            quantity = int(request.form['quantity'])
             
-            medIssued = Medicine_Issued.query.filter(Medicine_Issued.patient_id==patient_Id, Medicine_Issued.medicine_id == id).first()
-            medIssued.quantity = quantity
-            db.session.commit()
-            flash('Medicine quantity update initiated succesfully', category='info')
-            return redirect(url_for('medicineIssued'))
+            medIssued = Medicine_Issued.query.filter(Medicine_Issued.patient_id==patient_Id, Medicine_Issued.medicine_id == id).first() 
+            medicine = Medicine.query.filter(Medicine.id == medIssued.medicine_id).first()
+            if medIssued.quantity > quantity:
+                medicine.quantity_available += (medIssued.quantity - quantity)
+                medIssued.quantity = quantity
+                db.session.commit()
+                flash('Medicine quantity update initiated succesfully', category='info')
+                return redirect(url_for('medicineIssued'))
+            else:
+                medicine.quantity_available -= (quantity - medIssued.quantity)    
+                medIssued.quantity = quantity
+                db.session.commit()
+                flash('Medicine quantity update initiated succesfully', category='info')
+                return redirect(url_for('medicineIssued'))
         else:
             flash('Please check the inputs!', category='warning')
             return redirect(url_for('medicineIssued'))
@@ -287,6 +315,8 @@ def updateQuant(id):
 def removeMedicine(pid, mid):
     if 'loggedin' in session:
         med = Medicine_Issued.query.filter(Medicine_Issued.patient_id==pid,Medicine_Issued.medicine_id == mid).first()
+        medicine = Medicine.query.filter(Medicine.id == mid).first()
+        medicine.quantity_available += med.quantity
         db.session.delete(med)
         db.session.commit()
         flash('Medicine removal initiated successfully', category='info')
@@ -402,6 +432,63 @@ def deleteDiagnosis(testId):
     else:
         flash('Please Sign-in first!', category='warning')
         return redirect(url_for('index'))
+
+
+@app.route('/diagPerformed', methods=['GET', 'POST'])
+def diagPerformed():
+    if 'loggedin' in session:
+        all_diagnosis = Diagnostics.query.all()
+        
+        if request.method == 'POST' and 'ssnID' in request.form:
+            ssnID = request.form['ssnID']
+            patient = Patient.query.filter(Patient.ssnID == ssnID).first()
+            if patient:
+                diagPerform = DiagnosisPerformed.query.filter(DiagnosisPerformed.patient_id == patient.id).all()
+                diaglist = list()
+                for diag in diagPerform:
+                    diagObj = Diagnostics.query.filter(Diagnostics.id == diag.test_id).first()
+                    diagData = {
+                        'id': diagObj.id,
+                        'name': diagObj.test_name,
+                        'charges': diagObj.test_charges
+                    }
+                    diaglist.append(diagData)
+                
+                return render_template('diagPerformed.html', patient=patient, all_diagnosis=all_diagnosis, diagPerform=diagPerform, diaglist=diaglist)
+            else:
+                flash('Patient with SSN ID not found!', category='warning')
+                return redirect(url_for('medicineIssued'))
+        elif request.method=='POST' and 'patientId' in request.form and 'testId' in request.form:
+            patientId = request.form['patientId']
+            testId = request.form['testId']
+
+            is_diagPerformed = DiagnosisPerformed.query.filter(DiagnosisPerformed.patient_id == patientId, DiagnosisPerformed.test_id == testId).first()
+            if is_diagPerformed:
+                flash('Test already performed!', category='warning')
+                return redirect(url_for('diagPerformed'))
+            else:
+                performTest = DiagnosisPerformed(patient_id=patientId, test_id=testId)
+                db.session.add(performTest)
+                db.session.commit()
+                flash('Diagnosis test initiated successfully', category='info')
+                return redirect(url_for('diagPerformed'))
+        else:
+            return render_template('diagPerformed.html')
+    else:
+        flash('Please Sign-in first!', category='warning')
+        return redirect(url_for('index'))
+
+@app.route('/removeTest/<int:pid>,<int:tid>')
+def removeTest(pid, tid):
+    if 'loggedin' in session:
+        diag = DiagnosisPerformed.query.filter(DiagnosisPerformed.patient_id == pid, DiagnosisPerformed.test_id == tid).first()
+        db.session.delete(diag)
+        db.session.commit()
+        flash('Diagnosis removal initiated successfully', category='info')
+        return redirect(url_for('diagPerformed'))
+    else:
+       flash('Please Sign-in first!', category='warning')
+       return redirect(url_for('index'))         
 ###########
 
 

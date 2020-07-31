@@ -7,10 +7,10 @@
 
 {% block body %}
         <div class="mb-2 mt-3 text-center">
-            <h1 class="h3 mb-3 font-weight-normal">Medicine Issued Details</h1>
+            <h1 class="h3 mb-3 font-weight-normal">Diagnosis Performed</h1>
             <hr>
         </div>
-        <form class="data-form" action="{{ url_for('medicineIssued') }}" method="POST">
+        <form class="data-form" action="{{ url_for('diagPerformed') }}" method="POST">
             <div class="form-group row">
                 <div class="col-7">
                     <input type="text" name="ssnID" class="form-control" id="inputSSNID" placeholder="Enter SSN ID">
@@ -110,85 +110,52 @@
         
                 <div class="card-body mb-3">
                     <h4 class="card-title font-weight-bold" style="display: inline-flex; font-size: 20px; line-height: 2;">
-                        Medicine Issued</h4>
+                        Test Performed</h4>
                     <h4 style="display: inline-flex; float: right;">
-                        <a class="small btn btn-primary text-white" href="#" data-toggle="modal" data-target="#issueModal"><i
+                        <a class="small btn btn-primary text-white" href="#" data-toggle="modal" data-target="#performModal"><i
                                 class="fa fa-plus-circle"></i>&nbsp;
-                            Issue</a>
+                            Perform</a>
                     </h4>
                     <hr style="border-color: cornflowerblue; margin: 0;">
                     <table class="mt-2" id="medicineTable">
                         <thead>
-                            {% if medIssued %}
+                            {% if diagPerform %}
                             <tr>
-                                <th scope="col">Medicine Name</th>
-                                <th scope="col">Quantity Issued</th>
-                                <th scope="col">Update Quantity</th>
+                                <th scope="col">Test Name</th>
+                                <th scope="col">Test Charges</th>
                                 <th scope="col">Remove</th>
                             </tr>
                             {% endif %}
                         </thead>
                         <tbody>
-                            {% if medIssued %}
-                                {% for med in medlist %}
+                            {% if diagPerform %}
+                                {% for diag in diaglist %}
                                     <tr>
-                                        <td data-label="Medicine Name">{{ med.obj.name }}</td>
-                                        <td data-label="Quantity Issued">{{ med.quantity }}</td>
-                                        <td data-label="Update Quantity"><a href="#" data-toggle="modal" data-target="#update{{ med.obj.id }}"
-                                                style="font-size: x-large;"><i class="fa fa-plus-circle"></i></a></td>
-                                        <td data-label="Remove"><a href="#" data-toggle="modal" data-target="#delete{{ med.obj.id }}"
+                                        <td data-label="Test Name">{{ diag.name }}</td>
+                                        <td data-label="Test Charges">{{ diag.charges }}</td>
+                                        <td data-label="Remove"><a href="#" data-toggle="modal" data-target="#delete{{ diag.id }}"
                                                 class="text-danger" style="font-size: x-large;"><i class="fa fa-minus-circle"></i></a>
                                         </td>
                                     </tr>
 
-                                    <!--update Modal -->
-                                    <div class="modal fade" id="update{{ med.obj.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="editModalLabel">Update Quantity</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <form action="/updateQuant/{{ med.obj.id }}" method="POST">
-                                                    <div class="modalGroup">
-                                                        <input name="patientId" value="{{ patient.id }}" hidden>
-                                                        <div class="form-group">
-                                                            <label for="inputName">Medicine Name</label>
-                                                            <input type="text" id="inputName" class="form-control" value="{{ med.obj.name }}" disabled>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="inputQuant">Quantity</label>
-                                                            <input type="number" min="1" name="quantity" id="inputQuant" class="form-control" value="{{ med.quantity }}" required autofocus>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                            <button type="submit" class="btn btn-primary">Submit</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Modal Delete user -->
-                                    <div class="modal fade" id="delete{{ med.obj.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+                                    <!-- Modal Delete -->
+                                    <div class="modal fade" id="delete{{ diag.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
                                     aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteModalLabel">Remove Medicine</h5>
+                                                <h5 class="modal-title" id="deleteModalLabel">Remove Test</h5>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                Are you sure you want to remove this medicine?
+                                                Are you sure you want to remove this test?
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                                <a href="/removeMedicine/{{ patient.id }},{{ med.obj.id }}" type="button" class="btn btn-primary">Yes</a>
+                                                <a href="/removeTest/{{ patient.id }},{{ diag.id }}" type="button" class="btn btn-primary">Yes</a>
                                             </div>
                                         </div>
                                     </div>
@@ -196,7 +163,7 @@
                                 {% endfor %}
                             {% else %}
                             <tr>
-                                <td class="text-center"> No medicine issued yet! </td>
+                                <td class="text-center"> No test performed yet! </td>
                             </tr>
                             {% endif %}
                         </tbody>
@@ -206,11 +173,11 @@
         </div>
         
         <!--Issue Modal -->
-        <div class="modal fade" id="issueModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal fade" id="performModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Issue Medicine</h5>
+                        <h5 class="modal-title" id="editModalLabel">Perform Test</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -218,21 +185,13 @@
                     <form class="form-sign" action="#" method="POST">
                         <input name="patientId" value="{{ patient.id }}" hidden>
                         <div class="form-group">
-                            <label for="inputMedName">Medicine Name</label>
-                            <select class="form-control" name="medicineId" id="inputMedName" required autofocus>
-                                <option value="" selected disabled>Select medicine</option>
-                                {% for medicine in all_medicines %}
-                                    {% if medicine.quantity_available %}
-                                    <option value="{{ medicine.id }}">{{ medicine.name }}</option>
-                                    {% else %}
-                                    <option value="" disabled>{{ medicine.name }} <small><i>(out of stock)</i></small></option>
-                                    {% endif %}
+                            <label for="inputMedName">Test Name</label>
+                            <select class="form-control" name="testId" id="inputMedName" required autofocus>
+                                <option value="" selected disabled>Select test</option>
+                                {% for test in all_diagnosis %}
+                                    <option value="{{ test.id }}">{{ test.test_name }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputQuantity">Quantity</label>
-                            <input type="number" min="1" name="quantity" id="inputQuantity" class="form-control" placeholder="Enter quantity" required autofocus>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -242,10 +201,9 @@
                 </div>
             </div>
         </div>
-
     {% else %}
-    <div class="backImage">
-        <img src="{{ url_for('static', filename='img/titleIcon.png') }}" width="150" alt="dianosis">
-    </div>
+        <div class="backImage">
+            <img src="{{ url_for('static', filename='img/titleIcon.png') }}" width="150" alt="dianosis">
+        </div>
     {% endif %} 
 {% endblock %}

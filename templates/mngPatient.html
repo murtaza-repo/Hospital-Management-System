@@ -195,8 +195,14 @@
                 </div>
             </div>
         </div>
+    
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
     <script src="//geodata.solutions/includes/statecity.js"></script>   
+
+    {% else %}
+        <div class="backImage">
+            <img src="{{ url_for('static', filename='img/titleIcon.png') }}" width="150" alt="dianosis">
+        </div>
     {% endif %}
 {% endblock %}
