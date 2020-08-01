@@ -47,3 +47,23 @@ body {
   }
 }
 
+@media only screen and (max-width: 356px){
+
+  h3{
+    font-size: 1.2rem !important;
+    line-height: 1.9 !important;
+  }
+
+  h4{
+    font-size: 16px !important;
+  }
+
+  .navbar-brand{
+    font-size: 1rem !important;
+  }
+
+  #page-content button{
+    min-width: max-content !important;
+  }
+}
+

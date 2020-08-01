@@ -489,8 +489,78 @@ def removeTest(pid, tid):
     else:
        flash('Please Sign-in first!', category='warning')
        return redirect(url_for('index'))         
-###########
 
+
+@app.route('/genBill', methods=['GET', 'POST'])
+def genBill():
+    if 'loggedin' in session:
+        #overall total parameters
+        room_total = 0
+        pharmacy_total = 0
+        diagnostics_total = 0  
+        
+        #Room charges
+        general_rate = 2000 #per day
+        semi_rate = 4000 #per day
+        single_rate = 8000 #per day
+
+        if request.method == 'POST' and 'ssnID' in request.form:
+            ssnID = request.form['ssnID']
+            patient = Patient.query.filter(Patient.ssnID == ssnID).first()
+            if patient:
+                patientData = list()
+                days = (datetime.now().date()-date.fromisoformat(str(patient.doj))).days + 1
+                
+                if patient.type_of_bed == 'General':
+                    room_total += (general_rate*days)
+                elif patient.type_of_bed == 'Semi':
+                    room_total += (semi_rate*days)
+                else:
+                    room_total += (single_rate*days)
+
+                pobj = {'ssnID' : patient.ssnID, 'name': patient.name, 'age': patient.age, 
+                        'address': (patient.address+", "+patient.city+", "+ patient.state), 
+                        'doj': patient.doj, 'date_of_discharge': datetime.utcnow().date(), 
+                        'type_of_bed': patient.type_of_bed, 'number_of_days': days, 
+                        'room_charges': room_total}
+                patientData.append(pobj)
+
+                print(patientData)
+
+                med_issued = Medicine_Issued.query.filter(Medicine_Issued.patient_id == patient.id).all()
+                diag_performed = DiagnosisPerformed.query.filter(DiagnosisPerformed.patient_id == patient.id).all()
+                medData = list()
+                diagData = list()
+                for med in med_issued:
+                    medicine = Medicine.query.filter(Medicine.id == med.medicine_id).first()
+                    obj = { 'name': medicine.name, 'quantity': med.quantity, 
+                            'rate': medicine.rate_of_medicine, 
+                            'amount': (med.quantity * medicine.rate_of_medicine) }
+                    medData.append(obj)
+                
+                for total1 in medData:
+                    pharmacy_total+=total1['amount']
+                
+                for diag in diag_performed:
+                    diagnos = Diagnostics.query.filter(Diagnostics.id == diag.test_id).first()
+                    output = {'test_name': diagnos.test_name, 'test_charges': diagnos.test_charges}
+                    diagData.append(output)
+
+                for total2 in diagData:
+                    diagnostics_total+=total2['test_charges']
+
+                return render_template('genBill.html', patient=patient, patientData=patientData, medData=medData, pharmacy_total=pharmacy_total, 
+                                        diagData = diagData, diagnostics_total=diagnostics_total)
+            else:
+                flash('Patient with SSN ID not found!', category='warning')
+                return redirect(url_for('genBill'))
+
+        return render_template('genBill.html')
+    else:
+       flash('Please Sign-in first!', category='warning')
+       return redirect(url_for('index'))
+
+###########
 
 # App Execution Main #
 if __name__=='__main__':

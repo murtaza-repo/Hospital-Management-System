@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ResponsiveTable.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="mb-2 mt-3 text-center">
+        <h1 class="h3 mb-3 font-weight-normal">Generate Bill</h1>
+        <hr>
+    </div>
+    <form class="data-form" action="{{ url_for('genBill') }}" method="POST">
+        <div class="form-group row">
+            <div class="col-7">
+                <input type="text" name="ssnID" class="form-control" id="inputSSNID" placeholder="Enter SSN ID">
+            </div>
+            <div class="col-5">
+                <button type="submit" class="btn btn-primary mb-2">Generate</button>
+            </div>
+        </div>
+    </form>
+
+    {% if patient %}
+        <div class="card-deck mb-3">
+            <div class="card mt-2" style="width: auto; border-color: cornflowerblue; border-radius: 15px;">
+                <div class="card-body">
+                    <h4 class="card-title font-weight-bold" style="display: inline-flex; font-size: 20px; line-height: 2;">
+                        Patient Billing</h4>
+                    <div class="card-text">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">SSN ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Age</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">DOJ</th>
+                                    <th scope="col">Date of Discharge</th>
+                                    <th scope="col">Type of Room</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pdata in patientData %}
+                                    <tr>
+                                        <td data-label="SSN ID">{{ pdata['ssnID'] }}</td>
+                                        <td data-label="Name">{{ pdata['name'] }}</td>
+                                        <td data-label="Age">{{ pdata['age'] }}</td>
+                                        <td data-label="Address">{{ pdata['address'] }}</td>
+                                        <td data-label="DOJ">{{ pdata['doj'] }}</td>
+                                        <td data-label="Date of Discharge">{{ pdata['date_of_discharge'] }}</td>
+                                        <td data-label="Type of Room">{{ pdata['type_of_bed'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="text-align: -webkit-center;"><b>No. of days:</b> {{ pdata['number_of_days'] }}</td>
+                                        <td colspan="4" style="text-align: -webkit-center;"><b>Bill for Room:</b> Rs. {{ pdata['room_charges'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title font-weight-bold" style="display: inline-flex; font-size: 20px; line-height: 2;">
+                        Pharmacy Charges</h4>
+                    <div class="card-text">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Medicine</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Rate</th>
+                                    <th scope="col">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mdata in medData %}
+                                    <tr>
+                                        <td data-label="Medicine">{{ mdata['name'] }}</td>
+                                        <td data-label="Quantity">{{ mdata['quantity'] }}</td>
+                                        <td data-label="Rate">{{ mdata['rate'] }}</td>
+                                        <td data-label="Amount">{{ mdata['amount'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr>
+                                        <td colspan="4" style="text-align: -webkit-center;"><b>Bill for Pharmacy:</b> Rs. {{ pharmacy_total }}</td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title font-weight-bold" style="display: inline-flex; font-size: 20px; line-height: 2;">
+                        Diagnostics Charges</h4>
+                    <div class="card-text">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Test Name</th>
+                                    <th scope="col">Test Charges</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in diagData %}
+                                    <tr>
+                                        <td data-label="Test Name">{{ data['test_name'] }}</td>
+                                        <td data-label="Test Charges">{{ data['test_charges'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr>
+                                        <td colspan="2" style="text-align: -webkit-center;"><b>Bill for Diagnostics:</b> Rs. {{ diagnostics_total }}</td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title" style="text-align: center; font-weight: bold;">
+                        Grand Total: Rs. {{ patientData[0]['room_charges'] + pharmacy_total + diagnostics_total }}
+                    </h4>
+                    <br>
+                    <div class="card-text text-center">
+                        <a class="btn btn-primary" href="{{ url_for('discharge') }}" style="display: inline; border: none; color: white; cursor: pointer;">Confirm</a>
+                        <a class="btn btn-primary" href="{{ url_for('home') }}" style="display: inline; border: none; background: crimson; color: white; cursor: pointer;">back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}   
+{% endblock %}
