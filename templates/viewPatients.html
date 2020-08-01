@@ -26,8 +26,6 @@
                 <th scope="col">Date of Admission</th>
                 <th scope="col">Type of Bed</th>
                 <th scope="col">Address</th>
-                <th scope="col">State</th>
-                <th scope="col">City</th>
                 <th scope="col">Status</th>
                 <th scope="col">Update</th>
                 <th scope="col">Delete</th>
@@ -41,9 +39,7 @@
                     <td data-label="Patient Age">{{ patient.age }}</td>
                     <td data-label="Date of Admission">{{ patient.doj }}</td>
                     <td data-label="Type of Bed">{{ patient.type_of_bed }}</td>
-                    <td data-label="Address">{{ patient.address }}</td>
-                    <td data-label="State">{{ patient.state }}</td>
-                    <td data-label="City">{{ patient.city }}</td>
+                    <td data-label="Address">{{ patient.address }}, {{ patient.city }}, {{ patient.state }}</td>
                     <td data-label="Status">
                         {% if patient.status == 'Active' %}
                             <span class="text-success">{{ patient.status }}</span>

@@ -20,7 +20,7 @@
         </div>
     </form>
 
-    {% if patient %}
+    {% if patient and patient.status == 'Active' %}
         <div class="card-deck mb-3">
             <div class="card mt-2" style="width: auto; border-color: cornflowerblue; border-radius: 15px;">
                 <div class="card-body">
@@ -119,11 +119,20 @@
                     </h4>
                     <br>
                     <div class="card-text text-center">
-                        <a class="btn btn-primary" href="{{ url_for('discharge') }}" style="display: inline; border: none; color: white; cursor: pointer;">Confirm</a>
-                        <a class="btn btn-primary" href="{{ url_for('home') }}" style="display: inline; border: none; background: crimson; color: white; cursor: pointer;">back</a>
+                        <form action="{{ url_for('discharge') }}" method="POST">
+                            <input type="hidden" name="ssnID" value="{{ patient.ssnID }}">
+                            <button type="submit" class="btn btn-primary" style="display: inline; border: none;">Confirm</button>
+                            <a class="btn btn-primary" href="{{ url_for('home') }}" style="display: inline; border: none; padding: 10px; background: crimson; color: white; cursor: pointer;">Cancel</a>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+    {% elif patient and patient.status == 'Discharged' %}
+        <h4 style="text-align: center; color: grey;">Patient already discharged!!!</h4>
+    {% else %}
+    <div class="backImage">
+        <img src="{{ url_for('static', filename='img/titleIcon.png') }}" width="150" alt="dianosis">
+    </div>
     {% endif %}   
 {% endblock %}

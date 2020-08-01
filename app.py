@@ -560,10 +560,27 @@ def genBill():
        flash('Please Sign-in first!', category='warning')
        return redirect(url_for('index'))
 
-###########
+
+@app.route('/discharge', methods=['POST'])
+def discharge():
+    if 'loggedin' in session:
+        if request.method == 'POST' and 'ssnID' in request.form:
+            ssnID = request.form['ssnID']
+            patient = Patient.query.filter(Patient.ssnID == ssnID).first()
+            patient.status = 'Discharged'
+            db.session.commit()
+            flash('Patient discharge intiated successfully', category='info')
+            return redirect(url_for('home'))
+        else:
+            flash('Try again!', category='warning')
+            return redirect(url_for('home'))
+    else:
+       flash('Please Sign-in first!', category='warning')
+       return redirect(url_for('index'))
+########### 
 
 # App Execution Main #
 if __name__=='__main__':
-    app.run(debug=True)
+    app.run()
 
 ###########
